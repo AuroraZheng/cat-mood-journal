@@ -21,12 +21,13 @@ const moodTexts: Record<MoodType, string> = {
 const moodLabels: MoodType[] = ["Angry", "Fear", "Joy", "Interest", "Neutrality", "Cat-X5dd-Cat-cat-Happy-Sad-Angry-Surprised"];
 
 export default function Home() {
-  const [image, setImage] = useState<string | null>(null); // Used to store uploaded image
-  const [mood, setMood] = useState<string>(''); // Store current cat mood label
-  const [diaryText, setDiaryText] = useState<string>(''); // Store generated diary text
-  const [model, setModel] = useState<tf.LayersModel | null>(null); // Store the loaded model
+  const [image, setImage] = useState<string | null>(null);
+  const [mood, setMood] = useState<string>('');
+  const [diaryText, setDiaryText] = useState<string>('');
+  const [model, setModel] = useState<tf.LayersModel | null>(null);
   const [isModelLoading, setIsModelLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [predictionError, setPredictionError] = useState<string | null>(null);
 
   // Load the model with retry mechanism
   const loadModel = async (retryCount = 0) => {
@@ -36,12 +37,14 @@ export default function Home() {
       
       // 预热 TensorFlow.js
       await tf.ready();
+      console.log("TensorFlow.js is ready");
       
       // 使用 Vercel CDN 路径加载模型
       const modelPath = process.env.NODE_ENV === 'production' 
         ? 'https://cat-mood-journal-aurorazheng.vercel.app/mobilenet/model_fixed.json'
         : '/mobilenet/model_fixed.json';
-        
+      
+      console.log("Loading model from:", modelPath);
       const loadedModel = await tf.loadLayersModel(modelPath, {
         requestInit: {
           cache: 'force-cache'
@@ -54,11 +57,10 @@ export default function Home() {
       console.error("❌ Error loading model:", error);
       setLoadError("模型加载失败，正在重试...");
       
-      // 如果加载失败且重试次数小于3，则重试
       if (retryCount < 3) {
         setTimeout(() => {
           loadModel(retryCount + 1);
-        }, 2000); // 2秒后重试
+        }, 2000);
       } else {
         setLoadError("模型加载失败，请刷新页面重试");
       }
@@ -68,34 +70,56 @@ export default function Home() {
   };
 
   useEffect(() => {
-    loadModel(); // Load the model when the component mounts
+    loadModel();
   }, []);
 
   // Image upload handler
   const handleImageUpload = async (imageUrl: string | null) => {
-    if (!imageUrl) return; // Early return if no image
+    if (!imageUrl) return;
     
     setImage(imageUrl);
+    setPredictionError(null);
 
     if (model) {
-      const imgElement = new Image();
-      imgElement.src = imageUrl;
-      
-      imgElement.onload = async () => {
+      try {
+        const imgElement = new Image();
+        imgElement.src = imageUrl;
+        
+        await new Promise((resolve, reject) => {
+          imgElement.onload = resolve;
+          imgElement.onerror = reject;
+        });
+
+        console.log("Processing image...");
         const imgTensor = tf.browser.fromPixels(imgElement)
           .resizeBilinear([224, 224])
           .toFloat()
           .div(255.0)
           .expandDims();
 
+        console.log("Running prediction...");
         const prediction = model.predict(imgTensor) as tf.Tensor;
         const predictionArray = await prediction.data();
+        console.log("Prediction array:", predictionArray);
+
         const predictedLabelIndex = Array.from(predictionArray).indexOf(Math.max(...Array.from(predictionArray)));
+        console.log("Predicted label index:", predictedLabelIndex);
+        
         const predictedMood = moodLabels[predictedLabelIndex];
+        console.log("Predicted mood:", predictedMood);
 
         setMood(predictedMood);
         setDiaryText(moodTexts[predictedMood]);
-      };
+
+        // Cleanup tensors
+        tf.dispose([imgTensor, prediction]);
+      } catch (error) {
+        console.error("Error processing image:", error);
+        setPredictionError("图片处理失败，请重试");
+      }
+    } else {
+      console.error("Model not loaded");
+      setPredictionError("模型未加载，请等待或刷新页面");
     }
   };
 
@@ -128,7 +152,13 @@ export default function Home() {
               </CardContent>
             </Card>
 
-            {image && <MoodTag mood={mood} />}
+            {predictionError && (
+              <div className="text-center text-red-500 mt-4">
+                {predictionError}
+              </div>
+            )}
+
+            {image && mood && <MoodTag mood={mood} />}
             <div className="my-6">
               <DiaryCard text={diaryText} image={image} />
             </div>
