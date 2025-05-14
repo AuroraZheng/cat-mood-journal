@@ -40,7 +40,7 @@ export default function Home() {
       
       // 使用 Vercel CDN 路径加载模型
       const modelPath = process.env.NODE_ENV === 'production' 
-        ? 'https://cat-mood-journal.vercel.app/mobilenet/model_fixed.json'
+        ? 'https://cat-mood-journal-aurorazheng.vercel.app/mobilenet/model_fixed.json'
         : '/mobilenet/model_fixed.json';
         
       const loadedModel = await tf.loadLayersModel(modelPath, {
