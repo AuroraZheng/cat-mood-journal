@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
+    "clsx": "^2.1.1",
     "lucide-react": "^0.510.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
