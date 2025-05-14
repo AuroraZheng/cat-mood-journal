@@ -39,12 +39,10 @@ export default function Home() {
       await tf.ready();
       console.log("TensorFlow.js is ready");
       
-      // 使用 Vercel CDN 路径加载模型
-      const modelPath = process.env.NODE_ENV === 'production' 
-        ? 'https://cat-mood-journal-aurorazheng.vercel.app/mobilenet/model_fixed.json'
-        : '/mobilenet/model_fixed.json';
-      
+      // 使用相对路径加载模型
+      const modelPath = '/mobilenet/model_fixed.json';
       console.log("Loading model from:", modelPath);
+      
       const loadedModel = await tf.loadLayersModel(modelPath, {
         requestInit: {
           cache: 'force-cache'
