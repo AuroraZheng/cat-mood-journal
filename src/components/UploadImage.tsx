@@ -1,32 +1,52 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Upload } from 'lucide-react';
 
 interface UploadImageProps {
-  onImageUpload: (image: string | null) => void;
+  onImageUpload: (imageUrl: string | null) => void;
 }
 
-export const UploadImage: React.FC<UploadImageProps> = ({ onImageUpload }) => {
-  const [loading, setLoading] = useState(false);
+export function UploadImage({ onImageUpload }: UploadImageProps) {
+  const [preview, setPreview] = useState<string | null>(null);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        onImageUpload(reader.result as string); // 返回上传的图片数据
+        const result = reader.result as string;
+        setPreview(result);
+        onImageUpload(result);
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-soft-blue rounded-lg">
       <input
         type="file"
         accept="image/*"
-        onChange={handleImageChange}
-        disabled={loading}
+        onChange={handleFileChange}
+        className="hidden"
+        id="image-upload"
       />
-      {loading && <p>Loading...</p>}
+      <label
+        htmlFor="image-upload"
+        className="flex flex-col items-center justify-center cursor-pointer"
+      >
+        <Upload className="w-12 h-12 text-soft-blue mb-4" />
+        <span className="text-soft-blue">
+          {preview ? '点击更换图片' : '点击上传猫咪照片'}
+        </span>
+      </label>
+      {preview && (
+        <img
+          src={preview}
+          alt="Preview"
+          className="mt-4 max-h-48 rounded-lg"
+        />
+      )}
     </div>
   );
-};
+}
 

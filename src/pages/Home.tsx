@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { UploadImage } from '@/components/UploadImage';
 import { DiaryCard } from '@/components/DiaryCard';
