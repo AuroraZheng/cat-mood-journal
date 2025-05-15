@@ -18,7 +18,7 @@ export function MoodTag({ mood }: { mood: string }) {
       moodColors[mood as MoodType] || "bg-gray-100 text-gray-800"
     )}>
       {mood}
-    </span>
+      </span>
   );
 }
 
