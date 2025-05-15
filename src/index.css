@@ -1,0 +1,16 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+/* Tailwind 样式 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义样式 */
+@layer base {
+  :root {
+    --cream: #FFF5E1;
+    --berry-pink: #F1A7C1;
+    --soft-blue: #A9CBE8;
+  }
+}
