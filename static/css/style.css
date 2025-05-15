@@ -1,0 +1,71 @@
+/* 全局样式 */
+:root {
+    --primary-color: #FFB6C1;
+    --secondary-color: #FFC0CB;
+    --background-color: #FFF5E6;
+    --text-color: #4A4A4A;
+    --accent-color: #FF69B4;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 确保所有容器都使用相同的背景色 */
+.container, .diary-container, .upload-container, .result-container {
+    background-color: var(--background-color);
+}
+
+/* 日记文本样式 */
+.diary-text {
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: var(--text-color);
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
+    margin: 10px 0;
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+/* 表情包样式 */
+.meme-container {
+    position: relative;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.meme-image {
+    max-width: 100%;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.meme-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    font-family: 'Comic Sans MS', 'Marker Felt', cursive;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 10px;
+}
+
+.meme-text.top {
+    top: 20px;
+}
+
+.meme-text.bottom {
+    bottom: 20px;
+} 

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Mood Journal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Cat Mood Journal</h1>
+        
+        <div class="diary-container">
+            <h2>Today's Diary</h2>
+            <div class="diary-text">
+                <p>Dear Diary,</p>
+                <p>Today my cat is feeling <span id="mood-text">...</span></p>
+                <p>I can tell because of the way they look at me with those <span id="emotion-text">...</span> eyes!</p>
+            </div>
+        </div>
+
+        <div class="upload-container">
+            <h2>Upload Cat Photo</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="imageUpload" accept="image/*" required>
+                <button type="submit">Analyze Mood</button>
+            </form>
+        </div>
+
+        <div class="result-container" style="display: none;">
+            <h2>Analysis Result</h2>
+            <div class="meme-container">
+                <img id="resultImage" class="meme-image" src="" alt="Uploaded cat photo">
+                <div class="meme-text top" id="topText"></div>
+                <div class="meme-text bottom" id="bottomText"></div>
+            </div>
+            <div class="result-details">
+                <p>Detected Emotion: <span id="emotion"></span></p>
+                <p>Confidence: <span id="confidence"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 
