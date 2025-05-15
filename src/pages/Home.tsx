@@ -24,14 +24,31 @@ const moodLabels = [
 
 type MoodType = keyof typeof moodTexts;
 
+// 爪印SVG
+const PawSVG = ({ className = "", style = {} }) => (
+  <svg
+    viewBox="0 0 40 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={style}
+  >
+    <ellipse cx="20" cy="30" rx="8" ry="10" fill="#F9E7B0" fillOpacity="0.5" />
+    <ellipse cx="8" cy="18" rx="4" ry="5" fill="#F9E7B0" fillOpacity="0.5" />
+    <ellipse cx="32" cy="18" rx="4" ry="5" fill="#F9E7B0" fillOpacity="0.5" />
+    <ellipse cx="13" cy="10" rx="3" ry="4" fill="#F9E7B0" fillOpacity="0.5" />
+    <ellipse cx="27" cy="10" rx="3" ry="4" fill="#F9E7B0" fillOpacity="0.5" />
+  </svg>
+);
+
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedImg, setUploadedImg] = useState<string | null>(null);
   const [model, setModel] = useState<tf.LayersModel | null>(null);
   const [mood, setMood] = useState<MoodType | null>(null);
   const [isAnxiety, setIsAnxiety] = useState<boolean | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [modelLoading, setModelLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // 只用于图片分析
+  const [modelLoading, setModelLoading] = useState(true); // 新增，专用于模型加载
   const [error, setError] = useState<string | null>(null);
 
   // 加载模型
@@ -103,15 +120,14 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF5E1] flex flex-col items-center py-10 px-4 relative overflow-x-hidden">
-      {/* 背景爪印 */}
-      <div className="absolute left-8 top-16 opacity-20 text-5xl select-none">🐾</div>
-      <div className="absolute right-8 top-24 opacity-20 text-4xl select-none">🐾</div>
-      <div className="absolute left-12 bottom-24 opacity-20 text-4xl select-none">🐾</div>
-      <div className="absolute right-16 bottom-12 opacity-20 text-5xl select-none">🐾</div>
+    <div className="min-h-screen flex flex-col items-center py-10 px-4 relative overflow-x-hidden" style={{ background: '#FFFDE7' }}>
+      {/* 背景爪印 SVG，分布在页面不同角落 */}
+      <PawSVG style={{ position: 'absolute', left: 20, top: 40, width: 60, height: 60, zIndex: 0, opacity: 0.35 }} />
+      <PawSVG style={{ position: 'absolute', right: 40, top: 120, width: 48, height: 48, zIndex: 0, opacity: 0.28, transform: 'rotate(-20deg)' }} />
+      <PawSVG style={{ position: 'absolute', left: 60, bottom: 80, width: 52, height: 52, zIndex: 0, opacity: 0.32, transform: 'rotate(15deg)' }} />
+      <PawSVG style={{ position: 'absolute', right: 80, bottom: 40, width: 64, height: 64, zIndex: 0, opacity: 0.3, transform: 'rotate(10deg)' }} />
 
-      {/* 顶部标题和插画 */}
-      <div className="flex flex-col items-center mb-8 mt-4">
+      <div className="flex flex-col items-center mb-8 mt-4 relative z-10">
         <h1 className="text-3xl md:text-4xl font-bold text-[#5B3A29] text-center mb-4 leading-snug">
           Track your pet's behavior<br />and mood using AI
         </h1>
@@ -142,7 +158,7 @@ export default function Home() {
       </div>
 
       {/* 信息区块 */}
-      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
         {/* Weekly summary */}
         <div className="bg-white rounded-2xl shadow p-6 col-span-2 md:col-span-2 mb-2">
           <h2 className="text-xl font-bold text-[#5B3A29] mb-3">Weekly summary</h2>
