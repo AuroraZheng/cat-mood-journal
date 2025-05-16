@@ -8,18 +8,18 @@ const jumpCat = '/images/jump-cat.png';
 const moodTexts = {
   Angry: '今天我气得不想理你！离我远一点。',
   Fear: '我感到害怕，希望你能陪在我身边。',
-  Joy: '我今天很开心，满脸笑容！',
+  Happy: '我今天很开心，满脸笑容！',
   Interest: '我对今天的事情很感兴趣，想要了解更多。',
+  Joy: '我今天特别开心，想要和你分享！',
   Neutrality: '今天我感觉平静，不急不躁。',
-  'Cat-X5dd-Cat-cat-Happy-Sad-Angry-Surprised': ' . ',
 };
 const moodLabels = [
   'Angry',
   'Fear',
-  'Joy',
+  'Happy',
   'Interest',
+  'Joy',
   'Neutrality',
-  'Cat-X5dd-Cat-cat-Happy-Sad-Angry-Surprised',
 ];
 
 type MoodType = keyof typeof moodTexts;
@@ -50,18 +50,21 @@ export default function Home() {
   const [loading, setLoading] = useState(false); // 只用于图片分析
   const [modelLoading, setModelLoading] = useState(true); // 新增，专用于模型加载
   const [error, setError] = useState<string | null>(null);
+  const [modelError, setModelError] = useState(false);
 
   // 加载模型
   useEffect(() => {
     const loadModel = async () => {
       try {
-        setModelLoading(true);
-        await tf.ready();
-        const loaded = await tf.loadLayersModel('/mobilenet/model_fixed.json');
+        console.log('开始加载模型...');
+        const loaded = await tf.loadGraphModel('/model/model.json');
+        console.log('模型加载成功:', loaded);
         setModel(loaded);
-      } catch (e) {
-        setError('模型加载失败');
-      } finally {
+        setModelLoading(false);
+        console.log('模型已设置到state');
+      } catch (error) {
+        console.error('模型加载失败:', error);
+        setModelError(true);
         setModelLoading(false);
       }
     };
@@ -69,49 +72,63 @@ export default function Home() {
   }, []);
 
   // 上传图片并推理
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const imgUrl = reader.result as string;
-        setUploadedImg(imgUrl);
-        setMood(null);
-        setIsAnxiety(null);
-        setError(null);
-        if (model) {
-          try {
-            setLoading(true);
-            // 创建图片元素
-            const img = new window.Image();
-            img.src = imgUrl;
-            await new Promise((resolve, reject) => {
-              img.onload = resolve;
-              img.onerror = reject;
-            });
-            // 预处理
-            const tensor = tf.browser.fromPixels(img)
-              .resizeBilinear([224, 224])
-              .toFloat()
-              .div(255.0)
-              .expandDims();
-            // 推理
-            const prediction = model.predict(tensor) as tf.Tensor;
-            const predictionArray = await prediction.data();
-            const idx = Array.from(predictionArray).indexOf(Math.max(...Array.from(predictionArray)));
-            const predictedMood = moodLabels[idx] as MoodType;
-            setMood(predictedMood);
-            // 简单判断anxiety
-            setIsAnxiety(predictedMood === 'Fear' || predictedMood === 'Angry');
-            tf.dispose([tensor, prediction]);
-          } catch (err) {
-            setError('图片分析失败');
-          } finally {
-            setLoading(false);
-          }
+    if (!file) return;
+    setUploadedImg(URL.createObjectURL(file));
+    setMood(null);
+    setIsAnxiety(null);
+    setError(null);
+    if (!model) {
+      alert('模型未加载');
+      console.warn('模型未加载，无法推理');
+      return;
+    }
+    setLoading(true);
+    try {
+      console.log('开始读取图片文件:', file.name);
+      const img = new window.Image();
+      img.src = URL.createObjectURL(file);
+      img.crossOrigin = 'anonymous';
+      img.onload = async () => {
+        try {
+          console.log('图片加载完成，开始预处理');
+          const tensor = tf.tidy(() =>
+            tf.browser.fromPixels(img).resizeBilinear([224, 224]).toFloat().div(255).expandDims(0)
+          );
+          console.log('图片预处理完成，shape:', tensor.shape);
+          // 推理
+          const prediction = model.predict(tensor) as tf.Tensor;
+          const predictionArray = await prediction.data();
+          console.log('Prediction array:', predictionArray);
+          console.log('Prediction shape:', prediction.shape);
+          const idx = Array.from(predictionArray).indexOf(Math.max(...Array.from(predictionArray)));
+          const predictedMood = moodLabels[idx] as MoodType;
+          setMood(predictedMood);
+          setIsAnxiety(predictedMood === 'Fear' || predictedMood === 'Angry');
+          tf.dispose([tensor, prediction]);
+          setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          setMood(null);
+          setIsAnxiety(null);
+          setError('图片分析失败');
+          console.error('推理异常:', err);
         }
       };
-      reader.readAsDataURL(file);
+      img.onerror = (err) => {
+        setLoading(false);
+        setMood(null);
+        setIsAnxiety(null);
+        setError('图片加载失败');
+        console.error('图片加载失败:', err);
+      };
+    } catch (err) {
+      setLoading(false);
+      setMood(null);
+      setIsAnxiety(null);
+      setError('图片处理异常');
+      console.error('图片处理异常:', err);
     }
   };
 

@@ -165,9 +165,13 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
         const resultContainer = document.querySelector('.result-container');
         resultContainer.style.display = 'block';
 
-        // 更新图片
+        // 更新图片（显示新生成的表情包图片）
         const resultImage = document.getElementById('resultImage');
-        resultImage.src = URL.createObjectURL(file);
+        if (result.meme_image) {
+            resultImage.src = 'data:image/jpeg;base64,' + result.meme_image;
+        } else {
+            resultImage.src = URL.createObjectURL(file);
+        }
 
         // 更新表情包文本
         const topText = document.getElementById('topText');
