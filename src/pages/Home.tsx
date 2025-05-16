@@ -44,13 +44,12 @@ const PawSVG = ({ className = "", style = {} }) => (
 export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedImg, setUploadedImg] = useState<string | null>(null);
-  const [model, setModel] = useState<tf.LayersModel | null>(null);
+  const [model, setModel] = useState<tf.GraphModel | null>(null);
   const [mood, setMood] = useState<MoodType | null>(null);
   const [isAnxiety, setIsAnxiety] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false); // 只用于图片分析
   const [modelLoading, setModelLoading] = useState(true); // 新增，专用于模型加载
   const [error, setError] = useState<string | null>(null);
-  const [modelError, setModelError] = useState(false);
 
   // 加载模型
   useEffect(() => {
@@ -64,7 +63,7 @@ export default function Home() {
         console.log('模型已设置到state');
       } catch (error) {
         console.error('模型加载失败:', error);
-        setModelError(true);
+        setError('模型加载失败');
         setModelLoading(false);
       }
     };
